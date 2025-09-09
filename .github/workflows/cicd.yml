@@ -63,6 +63,7 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
+            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   reverse-proxy:
@@ -79,6 +80,7 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
+            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   app:
@@ -95,6 +97,7 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
+            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   log-stack:
@@ -111,6 +114,7 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
+            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   cleanup:

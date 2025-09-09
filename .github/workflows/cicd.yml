@@ -54,7 +54,7 @@ jobs:
       - uses: dawidd6/action-ansible-playbook@v4
         with:
           playbook: prepare.yml
-          directory: ansible
+          directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
           requirements: ansible/requirements.yml
           configuration: |
@@ -75,7 +75,7 @@ jobs:
       - uses: dawidd6/action-ansible-playbook@v4
         with:
           playbook: reverse-proxy.yml
-          directory: ansible
+          directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
           requirements: ansible/requirements.yml
           options: |
@@ -92,7 +92,7 @@ jobs:
       - uses: dawidd6/action-ansible-playbook@v4
         with:
           playbook: app.yml
-          directory: ansible
+          directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
           requirements: ansible/requirements.yml
           options: |
@@ -109,7 +109,7 @@ jobs:
       - uses: dawidd6/action-ansible-playbook@v4
         with:
           playbook: log-stack.yml
-          directory: ansible
+          directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
           requirements: ansible/requirements.yml
           options: |

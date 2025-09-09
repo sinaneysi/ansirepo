@@ -34,16 +34,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p ansible/group_vars/all
-          echo "${{ secrets.GROUP_VARS_YAML }}" > ansible/group_vars/all/99-runtime-secrets.yml
+          mkdir -p group_vars/all
+          echo "${{ secrets.GROUP_VARS_YAML }}" > group_vars/all/99-runtime-secrets.yml
           python3 - <<'PY'
-          import yaml; yaml.safe_load(open('ansible/group_vars/all/99-runtime-secrets.yml'))
+          import yaml; yaml.safe_load(open('group_vars/all/99-runtime-secrets.yml'))
           print("Secrets YAML parsed OK")
           PY
 
       - name: Set inventory
         id: set-inventory
-        run: echo "inventory=ansible/inventory/${{ inputs.inventory }}.yml" >> $GITHUB_OUTPUT
+        run: echo "inventory=inventory/${{ inputs.inventory }}.yml" >> $GITHUB_OUTPUT
 
   prepare:
     runs-on: ubuntu-latest
@@ -56,7 +56,7 @@ jobs:
           playbook: prepare.yml
           directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
-          requirements: ansible/requirements.yml
+          requirements: requirements.yml
           configuration: |
             [defaults]
             stdout_callback = yaml
@@ -77,7 +77,7 @@ jobs:
           playbook: reverse-proxy.yml
           directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
-          requirements: ansible/requirements.yml
+          requirements: requirements.yml
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
@@ -94,7 +94,7 @@ jobs:
           playbook: app.yml
           directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
-          requirements: ansible/requirements.yml
+          requirements: requirements.yml
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
@@ -111,7 +111,7 @@ jobs:
           playbook: log-stack.yml
           directory: .
           key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
-          requirements: ansible/requirements.yml
+          requirements: requirements.yml
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
@@ -123,7 +123,7 @@ jobs:
     needs: [setup, prepare, reverse-proxy, app, log-stack]
     steps:
       - name: Cleanup secrets file
-        run: rm -f ansible/group_vars/all/99-runtime-secrets.yml || true
+        run: rm -f group_vars/all/99-runtime-secrets.yml || true
 
       - name: Upload Ansible logs (optional)
         if: always()

@@ -1,0 +1,109 @@
+APP_DIRE_NAME: /opt/services/app
+
+#app
+DOCKER_REGISTRY: docker.io
+DOCKER_USERNAME: saeidraja
+IMAGE_TAG: 1d7152a
+TZ: Asia/Tehran
+RESTART_POLICY: unless-stopped
+OPENWEATHER_API_KEY: 43c63fd0792eb2aed922a1bc9131ccbd
+
+INFLUXDB_IMAGE: influxdb
+#INFLUXDB_VERSION: 2.7
+INFLUXDB_VERSION: 2.7.12
+INFLUXDB_URL: http://influxdb:8086  # Or http://localhost:8086 for local testing
+INFLUXDB_ORG: dotin
+INFLUXDB_BUCKET: weather_db
+INFLUXDB_TOKEN: vMgbJ6HfVjYcOaB1_bGuXAA0pMBnbOee38bnBAqFezCPRK32mWa-ve1vcLJlSsqC
+# db
+
+DOCKER_INFLUXDB_INIT_USERNAME: admin
+DOCKER_INFLUXDB_INIT_PASSWORD: 804ce76b913523c766a9b4e86a1f8c266c674e1c88f82f75
+DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: vMgbJ6HfVjYcOaB1_bGuXAA0pMBnbOee38bnBAqFezCPRK32mWa-ve1vcLJlSsqC
+DOCKER_INFLUXDB_INIT_ORG: dotin
+DOCKER_INFLUXDB_INIT_BUCKET: weather_db
+DOCKER_INFLUXDB_INIT_RETENTION: 30d
+### http proxy
+#http_proxy: http://37.59.93.12:8520
+
+# docker variables
+docker:
+#  http_proxy: "{{ http_proxy }}"
+  no_proxy: localhost,127.0.0.1,hub.mecan.ir
+  log_max_file: "5"
+  log_max_size: 100m
+  registry_mirror: https://hub.mecan.ir
+os_family: debian
+---
+# project directory
+LOG_DIRE_NAME: /opt/services/logging
+
+# nexus3, gitlab, and traefik docker image address and version
+#GRAFANA_IMAGE: grafana/grafana
+GRAFANA_IMAGE: grafana/grafana-oss
+#GRAFANA_VERSION: 10.1.5
+GRAFANA_VERSION: 12.1.1
+LOKI_IMAGE: grafana/loki
+#LOKI_VERSION: k171-b5eaae1
+LOKI_VERSION: 3.5.4
+PROMTAIL_IMAGE: grafana/promtail
+PROMTAIL_VERSION: 3.5.4
+#PROMTAIL_VERSION: k171-b5eaae1
+
+# Domain and subdomain definition
+DOMAIN_ADDRESS: jezire.ir
+LOGRASUB: grafana
+LOGSUB: loki
+
+# Grafana Auth
+GRAFANA_USERNAME: dotinUser
+GRAFANA_PASSWORD: 5bF+ZeBKSUcDEddCRmMCWtjugkJ6knRAyaHC4AO1Mko=
+GRAFANA_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+
+# set restart policy
+RESTART_POLICY: unless-stopped
+# pass generate with this commands
+# htpasswd -nbs user pass
+
+# basic package list for installation
+packages:
+- rsync
+- wget
+- git
+- vim
+- curl
+- htop
+- iftop
+- jq
+- ncdu
+- unzip
+- net-tools
+- dnsutils
+- atop
+- sudo
+- ntp
+- apache2-utils
+- tcpdump
+- telnet
+- axel
+- iptables-persistent
+- ntp
+
+# dns variables
+dns: 8.8.8.8 1.1.1.1
+fallback_dns: 9.9.9.9 4.2.2.4
+dnssec: allow-downgrade
+dns_over_tls: opportunistic
+
+# setup http proxy configuration
+proxy_env:
+#  http_proxy: http://89.233.107.245:3040
+  https_proxy: http://89.233.107.245:3040
+---
+# project directory
+TRAEFIK_DIRE_NAME: /opt/services/traefik
+
+# nexus3, gitlab, and traefik docker image address and version
+TRAEFIK_IMAGE: traefik
+TRAEFIK_VERSION: v3.5.1
+#TRAEFIK_VERSION: v3.0

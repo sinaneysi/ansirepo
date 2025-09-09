@@ -1,0 +1,110 @@
+
+name: Ansible Deploy (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_plan:
+        type: choice
+        description: "Which playbook(s) to run"
+        options: [all, prepare, reverse-proxy, app, log-stack]
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ansible-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      ANSIBLE_STDOUT_CALLBACK: yaml
+      ANSIBLE_NOCOLOR: "1"
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # REQUIRED secrets:
+      # - ANSIBLE_SSH_PRIVATE_KEY (multi-line ed25519 private key)
+      # - GROUP_VARS_YAML        (entire YAML of your secret vars)
+      # OPTIONAL:
+      # - ANSIBLE_VAULT_PASSWORD (if you later switch to Vault)
+      # - Commit ansible/requirements.yml to auto-install Galaxy deps
+
+      - name: Render runtime secret vars (group_vars)
+        run: |
+          mkdir -p ansible/group_vars/all
+          cat > ansible/group_vars/all/99-runtime-secrets.yml <<'YAML'
+          ${{ secrets.GROUP_VARS_YAML }}
+          YAML
+          python3 - <<'PY'
+          import yaml; yaml.safe_load(open('ansible/group_vars/all/99-runtime-secrets.yml'))
+          print("Secrets YAML parsed OK")
+          PY
+
+
+      # --- RUNS (each playbook in its own step) ---
+      - name: Run prepare.yml
+        if: ${{ inputs.run_plan == 'prepare' || inputs.run_plan == 'all' }}
+        uses: dawidd6/action-ansible-playbook@v4
+        with:
+          playbook: prepare.yml
+          directory: ansible
+          key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+          # requirements: ansible/requirements.yml          # uncomment if you use Galaxy
+          # vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          configuration: |
+            [defaults]
+            stdout_callback = yaml
+            retry_files_enabled = False
+          options: |
+            --inventory ansible/hosts.yml
+            --diff
+            -e deploy_commit=${{ github.sha }}
+
+      - name: Run reverse-proxy.yml
+        if: ${{ inputs.run_plan == 'reverse-proxy' || inputs.run_plan == 'all' }}
+        uses: dawidd6/action-ansible-playbook@v4
+        with:
+          playbook: reverse-proxy.yml
+          directory: ansible
+          key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+          options: |
+            --inventory ansible/hosts.yml
+            --diff
+            -e deploy_commit=${{ github.sha }}
+
+      - name: Run app.yml
+        if: ${{ inputs.run_plan == 'app' || inputs.run_plan == 'all' }}
+        uses: dawidd6/action-ansible-playbook@v4
+        with:
+          playbook: app.yml
+          directory: ansible
+          key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+          options: |
+            --inventory ansible/hosts.yml
+            --diff
+            -e deploy_commit=${{ github.sha }}
+
+
+      - name: Run log-stack.yml
+        if: ${{ inputs.run_plan == 'log-stack' || inputs.run_plan == 'all' }}
+        uses: dawidd6/action-ansible-playbook@v4
+        with:
+          playbook: log-stack.yml
+          directory: ansible
+          key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+          options: |
+            --inventory ansible/hosts.yml
+            --diff
+            -e deploy_commit=${{ github.sha }}
+
+      - name: Cleanup secrets file
+        if: always()
+        run: rm -f ansible/group_vars/all/99-runtime-secrets.yml || true
+

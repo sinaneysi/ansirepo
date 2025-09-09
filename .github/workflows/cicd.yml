@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p group_vars/all
+          mkdir -p ./inventory/group_vars/all
           echo "${{ secrets.GROUP_VARS_YAML }}" > ./inventory/group_vars/all/99-runtime-secrets.yml
           python3 - <<'PY'
           import yaml; yaml.safe_load(open('./inventory/group_vars/all/99-runtime-secrets.yml'))

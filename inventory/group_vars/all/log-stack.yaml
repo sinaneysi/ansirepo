@@ -1,0 +1,31 @@
+---
+# project directory
+LOG_DIRE_NAME: /opt/services/logging
+
+# nexus3, gitlab, and traefik docker image address and version
+#GRAFANA_IMAGE: grafana/grafana
+GRAFANA_IMAGE: grafana/grafana-oss
+#GRAFANA_VERSION: 10.1.5
+GRAFANA_VERSION: 12.1.1
+LOKI_IMAGE: grafana/loki
+#LOKI_VERSION: k171-b5eaae1
+LOKI_VERSION: 3.5.4
+PROMTAIL_IMAGE: grafana/promtail
+PROMTAIL_VERSION: 3.5.4
+#PROMTAIL_VERSION: k171-b5eaae1
+
+# Domain and subdomain definition
+DOMAIN_ADDRESS: jezire.ir
+LOGRASUB: grafana
+LOGSUB: loki
+
+# Grafana Auth
+GRAFANA_USERNAME: dotinUser
+GRAFANA_PASSWORD: 5bF+ZeBKSUcDEddCRmMCWtjugkJ6knRAyaHC4AO1Mko=
+GRAFANA_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+
+# set restart policy
+RESTART_POLICY: unless-stopped
+# pass generate with this commands
+# htpasswd -nbs user pass
+

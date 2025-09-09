@@ -35,9 +35,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p group_vars/all
-          echo "${{ secrets.GROUP_VARS_YAML }}" > group_vars/all/99-runtime-secrets.yml
+          echo "${{ secrets.GROUP_VARS_YAML }}" > ./inventory/group_vars/all/99-runtime-secrets.yml
           python3 - <<'PY'
-          import yaml; yaml.safe_load(open('group_vars/all/99-runtime-secrets.yml'))
+          import yaml; yaml.safe_load(open('./inventory/group_vars/all/99-runtime-secrets.yml'))
           print("Secrets YAML parsed OK")
           PY
 
@@ -63,7 +63,6 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
-            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   reverse-proxy:
@@ -80,7 +79,6 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
-            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   app:
@@ -97,7 +95,6 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
-            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   log-stack:
@@ -114,7 +111,6 @@ jobs:
           options: |
             --inventory ${{ needs.setup.outputs.inventory }}
             --diff
-            -e @group_vars/all/99-runtime-secrets.yml
             -e deploy_commit=${{ github.sha }}
 
   cleanup:
